@@ -105,8 +105,6 @@ classdef ContentDecisionTree<handle
             disp('Generated Matrix Done!');
         end
         
-        
-        
         function generateDecisionTree(obj, tree_bound_for_node, candidate_user_cluster_id, candidate_user_num)
             num_candidate_cluster = size(candidate_user_cluster_id, 2);
             fprintf('level %d:\n', obj.cur_depth);
@@ -217,7 +215,6 @@ classdef ContentDecisionTree<handle
             obj.cur_node = obj.cur_node + 3;
             fprintf('Current depth: %d        %.2f%%\n', obj.cur_depth, 100*obj.cur_node/obj.node_num);
         end
-        
         function buildTree(obj)
             obj.generateDecisionTree(obj.tree_bound{1}{1}, obj.user_cluster_id, obj.candi_user_num);
         end

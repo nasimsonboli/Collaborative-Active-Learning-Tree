@@ -1,0 +1,9 @@
+%% load
+% load four feature similarity
+% load params
+%%
+item_sim_matrix = params(1) * title_matrix +...
+             params(2) * tag_matrix +...
+             params(3) * year_matrix +...
+             params(4) * genre_matrix;
+save('../20m tree/item_sim_matrix.mat', 'item_sim_matrix')
