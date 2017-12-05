@@ -10,6 +10,5 @@ function [ item_cluster_rating_matrix ] = generateItemClusRMatrix( user_cluster,
             (test_UI_matrix(user_cluster{i}, :) == 0) .* (nominator ./ denominator);
         item_cluster_rating_matrix(i, :) = mean(item_rating_for_one_cluster, 1);
     end
-
 end
 

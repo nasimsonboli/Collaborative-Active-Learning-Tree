@@ -41,3 +41,12 @@ modelfun = (params(1).*x(:,1) + params(2).*x(:,2) +  params(3).*x(:,3) +  params
 rmse = (sum((realRatings - modelfun).^2)/length(realRatings)).^0.5
 
 %% Generate resulting 
+%% load
+% load four feature similarity
+% load params
+%%
+item_sim_matrix = params(1) * title_matrix +...
+             params(2) * tag_matrix +...
+             params(3) * year_matrix +...
+             params(4) * genre_matrix;
+save('../20m tree/item_sim_matrix.mat', 'item_sim_matrix')
