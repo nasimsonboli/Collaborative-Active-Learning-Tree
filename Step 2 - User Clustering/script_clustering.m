@@ -5,7 +5,6 @@ name = '20m';
 UI_matrix = UI_matrix_train;
 %% eliminate users with zero ratings within training set
 zero_users = find(sum(UI_matrix, 2)==0);
-
 % designate cluster number below
 clusters = k_medoid(distance, 700);
 for i = 1:length(clusters)

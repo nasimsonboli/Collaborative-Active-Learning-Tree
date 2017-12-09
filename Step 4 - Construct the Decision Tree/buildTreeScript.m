@@ -11,5 +11,7 @@ dtmodel.init(...
     item_sim_matrix(train_list,train_list), ...
     clusters);
 dtmodel.buildTree();
+dtmodel.UI_matrix = [];
+dtmodel.generated_rating_matrix = [];
 toc;
 save('dtmodel_random_cluster,best_score_param.mat', 'dtmodel');

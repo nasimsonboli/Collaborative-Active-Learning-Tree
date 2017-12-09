@@ -1,15 +1,16 @@
 %% load 
 % UI_matrix 
-name = '20m';
+name = '1m';
 UI_matrix = UI_matrix_train;
 
 %% randomly generate clusters
 [userNum, itemNum] = size(UI_matrix);
-K = round(userNum/20);
+clusterSzie = 1;
+K = round(userNum/clusterSzie);
 clusters = cell(1, K);
 random_index = single(randperm(userNum));
 startPos = 1;
-endPos = 20;
+endPos = clusterSzie;
 for i = 1 : K
     disp([num2str(i), 'th:'])
     disp(['startPos: ', num2str(startPos)])
@@ -20,7 +21,7 @@ for i = 1 : K
     if i == K - 1        
         endPos = userNum;
     else
-        endPos = endPos + 20;
+        endPos = endPos + clusterSzie;
     end
 end
 %% eliminate users with zero ratings within training set
