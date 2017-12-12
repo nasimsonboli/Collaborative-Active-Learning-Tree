@@ -4,14 +4,16 @@
 % load train_list
 % load clusters
 tic;
+weight = 0.01;
 dtmodel = ContentDecisionTree();
-dtmodel.setDepthThreshold(9);
+dtmodel.setDepthThreshold(7);
 dtmodel.init(...
     UI_matrix_train, ...
     item_sim_matrix(train_list,train_list), ...
-    clusters);
+    clusters, weight);
 dtmodel.buildTree();
-dtmodel.UI_matrix = [];
+dtmodel.UI_matrix_subtree = [];
 dtmodel.generated_rating_matrix = [];
+dtmodel.UI_matrix_full_unbiased = [];
 toc;
-save('dtmodel_random_cluster,best_score_param.mat', 'dtmodel');
+save('dtmodel_1m_1.mat', 'dtmodel');

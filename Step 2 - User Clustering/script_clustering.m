@@ -1,12 +1,16 @@
 %% load 
-% distance matrix
-% UI_matrix 
-name = '20m';
-UI_matrix = UI_matrix_train;
+% UI_matrix_train 
+
+%% Pre-calculate distance matrix
+name = '1m';
+distance = dist_overlap(UI_matrix_train);
+
 %% eliminate users with zero ratings within training set
-zero_users = find(sum(UI_matrix, 2)==0);
-% designate cluster number below
-clusters = k_medoid(distance, 700);
+userNum = size(UI_matrix_train, 1);
+zero_users = find(sum(UI_matrix_train, 2)==0);
+
+%% generate cluster
+clusters = k_medoid(distance, round(userNum/20));
 for i = 1:length(clusters)
     for j = 1:length(clusters{i})
         if ismember(clusters{i}(j), zero_users)
@@ -20,4 +24,4 @@ for i = 1:length(clusters)
 end
 
 %% Save to file
-save(['../', name, ' tree/clusters.mat'], 'clusters');
+save(['../', name, ' tree/Trees/clusters_1.mat'], 'clusters');

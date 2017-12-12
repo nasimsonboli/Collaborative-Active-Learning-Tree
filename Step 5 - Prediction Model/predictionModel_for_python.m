@@ -2,17 +2,19 @@
 % load dt_model
 % load UI_matrix_train & UI_matrix_test
 % load item_sim_matrix
-% load test_list & test_list
+% load train_list & test_list
 
 %% Options
 % Traditional FDT model without score, using like dislike & unknown interval
-FDT_mode = 1;
+FDT_mode = 0;
 % Traditional FDT MF contruction method. Build MF on each level
 Multiple_MF_mode = 1;
 % Train MF with score
 MF_with_score_mode = 0;
 % Calculate RMSE without ratings obtained from query process.
 RMSE_without_queried_ratings_mode = 1;
+% Weight of score
+weight = 0.01;
 
 %% Outload dtmodel file
 tree = dtmodel.tree;
@@ -24,7 +26,6 @@ save('treeFile/tree.mat', 'tree')
 save('treeFile/lr_bound.mat', 'lr_bound')
 
 %%	Pre-process
-weight = 0.01;
 totalDepth = length(dtmodel.tree_bound);
 [user_num, item_num_test] = size(UI_matrix_test);
 
