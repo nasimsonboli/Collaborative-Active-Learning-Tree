@@ -22,6 +22,7 @@ name = '20m';
 if name == '20m'
     subset_userNum = 13849;
 else
+    subset_userNum = 2014;
 end
 %% Outload dtmodel file
 tree = dtmodel.tree;

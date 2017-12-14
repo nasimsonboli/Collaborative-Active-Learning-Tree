@@ -27,20 +27,14 @@ classdef ContentDecisionTree<handle
     end
     
     methods
-        function loadUIRatingMatrix(obj, UI_matrix_full_train, UI_matrix_train)
+        function loadUIRatingMatrix(obj, UI_matrix_unbiased, UI_matrix_train)
             obj.UI_matrix_subtree = single(full(UI_matrix_train));
             item_num = size(obj.UI_matrix_subtree, 2);
             user_num = size(obj.UI_matrix_subtree, 1);
             obj.tree = uint32(linspace(1, item_num, item_num));
             obj.tree_bound{obj.cur_depth} = {[1, item_num]};
             if obj.error_with_full
-                obj.UI_matrix_full = UI_matrix_full_train;
-                obj.UI_matrix_unbiased = UI_matrix_full_train .* 0;
-                global_mean = sum(sum(obj.UI_matrix_full)) / sum(sum(obj.UI_matrix_full~=0));
-                item_bias = (sum(obj.UI_matrix_full, 1) + 7*global_mean) ./ (7+sum(obj.UI_matrix_full~=0, 1));
-                for i = 1:size(obj.UI_matrix_full, 1)
-                    obj.UI_matrix_unbiased(i, :) = obj.UI_matrix_full(i, :) - item_bias .* (obj.UI_matrix_full(i, :)~=0);
-                end             
+                obj.UI_matrix_unbiased = UI_matrix_unbiased;
                 disp('item bias DONE')
             else
                 global_mean = sum(sum(obj.UI_matrix_subtree)) / sum(sum(obj.UI_matrix_subtree~=0));
@@ -64,10 +58,10 @@ classdef ContentDecisionTree<handle
                 obj.candi_user_num = obj.candi_user_num + size(obj.user_cluster{i}, 2);
             end
         end
-        function init(obj, error_with_full, UI_matrix_full_train, UI_matrix_train, item_sim_matrix, clusters, weight)
+        function init(obj, error_with_full, UI_matrix_unbiased, UI_matrix_train, item_sim_matrix, clusters, weight)
             obj.weight = weight;
             obj.error_with_full = error_with_full;
-            obj.loadUIRatingMatrix(UI_matrix_full_train, UI_matrix_train);
+            obj.loadUIRatingMatrix(UI_matrix_unbiased, UI_matrix_train);
             disp('Load UI_matrix_subtree done!');       
             obj.loadUserCluster(clusters);
             disp('Load User Cluster Done!');               

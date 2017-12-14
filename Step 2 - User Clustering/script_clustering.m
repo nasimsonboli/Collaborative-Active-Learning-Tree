@@ -2,7 +2,7 @@
 % UI_matrix_train 
 
 %% Pre-calculate distance matrix
-name = '1m';
+name = '20m';
 distance = dist_overlap(UI_matrix_train);
 
 %% eliminate users with zero ratings within training set
