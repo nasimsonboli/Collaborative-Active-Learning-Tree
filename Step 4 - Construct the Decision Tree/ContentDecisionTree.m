@@ -3,6 +3,8 @@ classdef ContentDecisionTree<handle
     properties
         % U*I Rating sparse Matrix
         UI_matrix_subtree;    
+        UI_matrix_full;
+        error_with_full;
         generated_rating_matrix;
         
         % Tree Info
@@ -21,22 +23,32 @@ classdef ContentDecisionTree<handle
         tree_bound;           % Node bound for each level of the tree, Cell
         interval_bound;       % Bound for each node's interval
         user_cluster_id;      % Id of user clusters in the cell
-        UI_matrix_full_unbiased;            % UI rating after minusing Item bias
+        UI_matrix_unbiased;            % UI rating after minusing Item bias
     end
     
     methods
-        function loadUIRatingMatrix(obj, UI_matrix_train)
-%             UI_matrix_full = UI_matrix(:, train_list);
+        function loadUIRatingMatrix(obj, UI_matrix_full_train, UI_matrix_train)
             obj.UI_matrix_subtree = single(full(UI_matrix_train));
             item_num = size(obj.UI_matrix_subtree, 2);
             user_num = size(obj.UI_matrix_subtree, 1);
             obj.tree = uint32(linspace(1, item_num, item_num));
             obj.tree_bound{obj.cur_depth} = {[1, item_num]};
-            global_mean = sum(sum(obj.UI_matrix_subtree)) / sum(sum(obj.UI_matrix_subtree~=0));
-            item_bias = (sum(obj.UI_matrix_subtree, 1) + 7*global_mean) ./ (7+sum(obj.UI_matrix_subtree~=0, 1));
-            item_bias = repmat(item_bias, user_num, 1);
-            obj.UI_matrix_full_unbiased = obj.UI_matrix_subtree - item_bias.*(obj.UI_matrix_subtree~=0);
-            clear item_bias;
+            if obj.error_with_full
+                obj.UI_matrix_full = UI_matrix_full_train;
+                obj.UI_matrix_unbiased = UI_matrix_full_train .* 0;
+                global_mean = sum(sum(obj.UI_matrix_full)) / sum(sum(obj.UI_matrix_full~=0));
+                item_bias = (sum(obj.UI_matrix_full, 1) + 7*global_mean) ./ (7+sum(obj.UI_matrix_full~=0, 1));
+                for i = 1:size(obj.UI_matrix_full, 1)
+                    obj.UI_matrix_unbiased(i, :) = obj.UI_matrix_full(i, :) - item_bias .* (obj.UI_matrix_full(i, :)~=0);
+                end             
+                disp('item bias DONE')
+            else
+                global_mean = sum(sum(obj.UI_matrix_subtree)) / sum(sum(obj.UI_matrix_subtree~=0));
+                item_bias = (sum(obj.UI_matrix_subtree, 1) + 7*global_mean) ./ (7+sum(obj.UI_matrix_subtree~=0, 1));
+                item_bias = repmat(item_bias, user_num, 1);
+                obj.UI_matrix_unbiased = obj.UI_matrix_subtree - item_bias.*(obj.UI_matrix_subtree~=0);
+                clear item_bias;
+            end
         end
         function setDepthThreshold(obj, threshold)
             obj.depth_threshold = threshold;
@@ -52,9 +64,10 @@ classdef ContentDecisionTree<handle
                 obj.candi_user_num = obj.candi_user_num + size(obj.user_cluster{i}, 2);
             end
         end
-        function init(obj, UI_matrix_train, item_sim_matrix, clusters, weight)
+        function init(obj, error_with_full, UI_matrix_full_train, UI_matrix_train, item_sim_matrix, clusters, weight)
             obj.weight = weight;
-            obj.loadUIRatingMatrix(UI_matrix_train);
+            obj.error_with_full = error_with_full;
+            obj.loadUIRatingMatrix(UI_matrix_full_train, UI_matrix_train);
             disp('Load UI_matrix_subtree done!');       
             obj.loadUserCluster(clusters);
             disp('Load User Cluster Done!');               
@@ -88,7 +101,7 @@ classdef ContentDecisionTree<handle
             denominator = (obj.UI_matrix_subtree(id_array, item_in_node) == 0);
    
             %% Calculate Error
-            tmp_UI_matrix_in_node = obj.UI_matrix_full_unbiased(:, item_in_node);
+            tmp_UI_matrix_in_node = obj.UI_matrix_unbiased(:, item_in_node);
             min_error = -1;
             for i = 1:num_candidate_cluster
                 item_average_rating = sum(rating_for_item_in_node(index_cell{i}, :), 1) ./ sum(obj.weight*(denominator(index_cell{i}, :)) + (denominator(index_cell{i}, :)==0), 1);
@@ -156,6 +169,5 @@ classdef ContentDecisionTree<handle
             obj.generateDecisionTree(obj.tree_bound{1}{1}, obj.user_cluster_id, obj.candi_user_num);
         end
     end
-    
 end
 
