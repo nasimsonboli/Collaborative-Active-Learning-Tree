@@ -12,13 +12,13 @@
 % save('../20m tree/train_list.mat', 'train_list');
 % save('../20m tree/test_list.mat', 'test_list');
 
-divident = 1/3;
+subsetNum = 10;
 rating_matrix_train = UI_matrix(:, train_list);
 rating_matrix_test = UI_matrix(:, test_list);
 startPos = 1;
-endPos = int32(userNum * divident);
-disp(full(sum(sum(rating_matrix_train~=0)))/1000000);
-for i = 1:3
+endPos = int32(userNum / subsetNum);
+disp(full(sum(sum(rating_matrix_train~=0)))/20000000);
+for i = 1 : subsetNum
     disp([num2str(i), 'th:'])
     disp(['startPos: ', num2str(startPos)])
     disp(['endPos: ', num2str(endPos)])
@@ -28,7 +28,7 @@ for i = 1:3
     save(['../1m tree/UI_matrix_', num2str(i), '_test.mat'], 'UI_matrix_test');
 
     startPos = endPos + 1;
-    if i == 2        
+    if i == subsetNum - 1       
         endPos = userNum;
     else
         endPos = endPos + int32(userNum * divident);

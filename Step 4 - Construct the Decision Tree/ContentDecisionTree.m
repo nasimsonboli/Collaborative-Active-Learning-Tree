@@ -2,8 +2,7 @@ classdef ContentDecisionTree<handle
 
     properties
         % U*I Rating sparse Matrix
-        UI_matrix_subtree;    
-        UI_matrix_full;
+        UI_matrix_subtree;  
         error_with_full;
         generated_rating_matrix;
         
