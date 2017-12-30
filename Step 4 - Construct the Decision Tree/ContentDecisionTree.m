@@ -4,6 +4,8 @@ classdef ContentDecisionTree<handle
         % U*I Rating sparse Matrix
         UI_matrix_subtree;  
         error_with_full;
+        fixed_interval_mode;
+        bias_mode;
         generated_rating_matrix;
         
         % Tree Info
@@ -32,15 +34,19 @@ classdef ContentDecisionTree<handle
             user_num = size(obj.UI_matrix_subtree, 1);
             obj.tree = uint32(linspace(1, item_num, item_num));
             obj.tree_bound{obj.cur_depth} = {[1, item_num]};
-            if obj.error_with_full
-                obj.UI_matrix_unbiased = UI_matrix_unbiased;
-                disp('item bias DONE')
+            if obj.bias_mode
+                if obj.error_with_full
+                    obj.UI_matrix_unbiased = UI_matrix_unbiased;
+                    disp('item bias DONE')
+                else
+                    global_mean = sum(sum(obj.UI_matrix_subtree)) / sum(sum(obj.UI_matrix_subtree~=0));
+                    item_bias = (sum(obj.UI_matrix_subtree, 1) + 7*global_mean) ./ (7+sum(obj.UI_matrix_subtree~=0, 1));
+                    item_bias = repmat(item_bias, user_num, 1);
+                    obj.UI_matrix_unbiased = obj.UI_matrix_subtree - item_bias.*(obj.UI_matrix_subtree~=0);
+                    clear item_bias;
+                end
             else
-                global_mean = sum(sum(obj.UI_matrix_subtree)) / sum(sum(obj.UI_matrix_subtree~=0));
-                item_bias = (sum(obj.UI_matrix_subtree, 1) + 7*global_mean) ./ (7+sum(obj.UI_matrix_subtree~=0, 1));
-                item_bias = repmat(item_bias, user_num, 1);
-                obj.UI_matrix_unbiased = obj.UI_matrix_subtree - item_bias.*(obj.UI_matrix_subtree~=0);
-                clear item_bias;
+                obj.UI_matrix_unbiased = obj.UI_matrix_subtree;
             end
         end
         function setDepthThreshold(obj, threshold)
@@ -57,9 +63,10 @@ classdef ContentDecisionTree<handle
                 obj.candi_user_num = obj.candi_user_num + size(obj.user_cluster{i}, 2);
             end
         end
-        function init(obj, error_with_full, UI_matrix_unbiased, UI_matrix_train, item_sim_matrix, clusters, weight)
+        function init(obj, bias_mode, error_with_full, UI_matrix_unbiased, UI_matrix_train, item_sim_matrix, clusters, weight)
             obj.weight = weight;
             obj.error_with_full = error_with_full;
+            obj.bias_mode = bias_mode;
             obj.loadUIRatingMatrix(UI_matrix_unbiased, UI_matrix_train);
             disp('Load UI_matrix_subtree done!');       
             obj.loadUserCluster(clusters);
@@ -98,9 +105,14 @@ classdef ContentDecisionTree<handle
             min_error = -1;
             for i = 1:num_candidate_cluster
                 item_average_rating = sum(rating_for_item_in_node(index_cell{i}, :), 1) ./ sum(obj.weight*(denominator(index_cell{i}, :)) + (denominator(index_cell{i}, :)==0), 1);
-                [~, ind] = sort(item_average_rating);
-                interval1 = item_average_rating(ind(round(size(ind, 2)/3)));
-                interval2 = item_average_rating(ind(round(2*size(ind, 2)/3))); 
+                if obj.fixed_interval_mode                    
+                    interval1 = 2.5;
+                    interval2 = 3.5; 
+                else
+                    [~, ind] = sort(item_average_rating);
+                    interval1 = item_average_rating(ind(round(size(ind, 2)/3)));
+                    interval2 = item_average_rating(ind(round(2*size(ind, 2)/3))); 
+                end
                 dislike_array = tmp_UI_matrix_in_node(:, item_average_rating <= interval1);
                 mediocre_array = tmp_UI_matrix_in_node(:, item_average_rating > interval1 & item_average_rating <= interval2);
                 like_array = tmp_UI_matrix_in_node(:, item_average_rating > interval2);                
@@ -158,7 +170,8 @@ classdef ContentDecisionTree<handle
             fprintf('Current depth: %d        %.2f%%\n', obj.cur_depth, 100*obj.cur_node/obj.node_num);
         end
         
-        function buildTree(obj)
+        function buildTree(obj, fixed_interval_mode)
+            obj.fixed_interval_mode = fixed_interval_mode;
             obj.generateDecisionTree(obj.tree_bound{1}{1}, obj.user_cluster_id, obj.candi_user_num);
         end
     end

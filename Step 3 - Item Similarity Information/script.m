@@ -16,14 +16,14 @@ real_rating = [];
 [userNum, itemNum] = size(UI_matrix_train);
 item_id_random = randperm(itemNum);
 
-startPos = 1;
-endPos = int32(itemNum*0.1);
 
 startPos_u = 1;
 endPos_u = int32(userNum/3);
 
 for j = 1:3
     UI_matrix = single(full(UI_matrix_train(startPos_u : endPos_u, :)));
+    startPos = 1;
+    endPos = int32(itemNum*0.1);
     for i = 1:10
         disp(['startPos: ', num2str(startPos)])
         disp(['endPos: ', num2str(endPos)])

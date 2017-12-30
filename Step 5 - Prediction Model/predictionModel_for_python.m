@@ -16,10 +16,10 @@ RMSE_without_queried_ratings_mode = 1;
 % Weight of score
 weight = 0.01;
 % Index of user subset
-subsetNum = 1;
+subsetNum = 4;
 % Dataset selected
 name = '20m';
-if name == '20m'
+if strcmp(name, '20m')
     subset_userNum = 13849;
 else
     subset_userNum = 2014;
