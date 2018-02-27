@@ -5,6 +5,8 @@
 % load train_list & test_list
 
 %% Options
+% name = '20m';
+% number = 10;
 % Traditional FDT model without score, using like dislike & unknown interval
 FDT_mode = 0;
 % Traditional FDT MF contruction method. Build MF on each level
@@ -16,13 +18,12 @@ RMSE_without_queried_ratings_mode = 1;
 % Weight of score
 weight = 0.01;
 % Index of user subset
-subsetNum = 4;
+% number = 10;
 % Dataset selected
-name = '20m';
 if strcmp(name, '20m')
     subset_userNum = 13849;
 else
-    subset_userNum = 2014;
+    subset_userNum = 1007;
 end
 %% Outload dtmodel file
 tree = dtmodel.tree;
@@ -102,7 +103,7 @@ for chosenDepth = 1:totalDepth
     for i = 1 : length(rated_user)
         if ~isempty(rated_user{i})
             for j = 1:length(rated_user{i})
-                rated_user{i}(j) = rated_user{i}(j) + (subsetNum - 1) * subset_userNum;
+                rated_user{i}(j) = rated_user{i}(j) + (number - 1) * subset_userNum;
             end
         end
     end

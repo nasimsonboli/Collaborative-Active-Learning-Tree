@@ -2,7 +2,7 @@
 % load four feature similarity matrix
 % load UI_matrix_train
 tic;
-name = '20m';
+name = '1m';
 %%
 title = [];
 title_den = [];

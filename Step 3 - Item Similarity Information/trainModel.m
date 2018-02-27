@@ -1,5 +1,5 @@
 tic;
-name = '20m';
+name = '1m';
 
 A_title = load(['data/', name, '/title.mat']);
 A_title = A_title.title;
@@ -35,7 +35,7 @@ mdl = fitnlm(tbl,modelfun,beta0)
 x = [A_title, A_tag, A_year, A_genre,...
             B_title, B_tag, B_year, B_genre, realRatings];
 params = table2array(mdl.Coefficients(:,1));
-save(['../', name, ' tree/Trees/params_2.mat'], 'params');
+% save(['../', name, ' tree/Trees/params_2.mat'], 'params');
 modelfun = (params(1).*x(:,1) + params(2).*x(:,2) +  params(3).*x(:,3) +  params(4).*x(:,4))...
                                      ./...
                  (params(1).*x(:,5) + params(2).*x(:,6) +  params(3).*x(:,7) +  params(4).*x(:,8));
@@ -46,5 +46,5 @@ item_sim_matrix = params(1) * title_matrix +...
              params(2) * tag_matrix +...
              params(3) * year_matrix +...
              params(4) * genre_matrix;
-save(['../', name, ' tree/Trees/item_sim_matrix_2.mat'], 'item_sim_matrix')
+save(['../', name, ' tree/Sorted/item_sim_matrix.mat'], 'item_sim_matrix')
 toc;

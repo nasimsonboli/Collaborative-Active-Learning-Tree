@@ -1,4 +1,4 @@
-function [ sub_user_cluster_cell ] = findTopKUserCluster( user_cluster_cell, rating_matrix, k )
+function [ sub_user_cluster_cell ] = findTopKUserCluster( user_cluster_cell, cluster_size, rating_matrix, k )
 % rating_matrix is a single matrix, not sparse matrix
 %   Detailed explanation goes here
     user_rating_num = sum(rating_matrix~=0, 2);      % (user number, 1)
@@ -12,15 +12,15 @@ function [ sub_user_cluster_cell ] = findTopKUserCluster( user_cluster_cell, rat
     res_ind = single(zeros(size(ind)));
     cnt = 1;
     for i = 1:size(ind, 2)
-        if size(user_cluster_cell{ind(i)}, 2) >= 20
+         if size(user_cluster_cell{ind(i)}, 2) >= cluster_size
             res_ind(cnt) = ind(i);
             cnt = cnt + 1;
-        end
+         end
     end
     if cnt > k
         sub_user_cluster_cell = user_cluster_cell(res_ind(1:k));
     else
-        sub_user_cluster_cell = [];
+        sub_user_cluster_cell = user_cluster_cell(res_ind(1:cnt - 1));
     end
 end
 
